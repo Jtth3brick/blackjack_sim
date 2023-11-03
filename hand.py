@@ -86,6 +86,15 @@ class Hand:
     
     def get_upcard(self):
         return self.dealer_upcard
+    
+    def get_upcard_val(self):
+        upcard = self.get_upcard()
+        if upcard in ['J', 'Q', 'K']:
+            return 10
+        elif upcard != 'A':
+            return int(upcard)
+        else:
+            return upcard
 
     def set_card(self, index, card):
         self.cards[index] = card

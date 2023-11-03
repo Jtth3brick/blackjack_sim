@@ -77,6 +77,7 @@ class Game:
         Plays a sequence of Blackjack rounds until the game count reaches GAMES.
         """
         self.player = self.player_class(self)
+        self.shoe.shuffle_shoe()
         for _ in range(num_games):
             if self.player.play_more():
                 shuffled = self.shoe.shuffle_if_cut()

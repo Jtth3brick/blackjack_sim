@@ -11,7 +11,7 @@ class Dealer:
         Returns the dealer's face-up card.
         """
         return self.cards[0]  # Assuming the first card is the face-up card.
-
+    
     def calculate_hand_value(self):
         """
         Calculates the total value of the dealer's hand.
@@ -48,9 +48,10 @@ class Dealer:
         self.cards.append(shoe.deal())
         self.hand_value = self.calculate_hand_value()
 
-    def play_hand(self, shoe):
+    def update_self(self, shoe):
         """
         Dealer plays their hand according to the casino rules, typically standing on 17 and above.
+        This method updates the dealer's hand by hitting until reaching at least a soft 17.
         """
         while self.hand_value < 17:
             self.hit(shoe)

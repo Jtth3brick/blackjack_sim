@@ -35,6 +35,9 @@ class BasicPlayer:
         The main decision loop for the player's game actions.
         """
         for hand in self.hands:
+            if hand.get_value() >= 21:
+                hand.set_complete()
+                return 'stand'
             if not hand.is_complete():
                 decision = get_basic_strat(hand)
                 hand.set_decision(decision)
@@ -52,6 +55,6 @@ class BasicPlayer:
     def play_more(self):
         return self.get_balance() >= 100
 
-    def new_shoe():
+    def new_shoe(self):
         # Notifies player that a the shoe has been shuffled
         pass
