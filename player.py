@@ -36,10 +36,10 @@ class BasicPlayer:
         """
         for hand in self.hands:
             if not hand.is_complete():
-                decision = get_basic_strat(hand, hand)
+                decision = get_basic_strat(hand)
                 hand.set_decision(decision)
-                if decision == 'stand':
-                    hand.set_complete
+                if decision == 'stand' or decision == 'surrender' or decision == 'double':
+                    hand.set_complete()
 
     def get_bet(self, hand):
         """
@@ -48,6 +48,9 @@ class BasicPlayer:
         :return: The bet amount
         """
         return self.new_round()
+    
+    def play_more(self):
+        return self.get_balance() >= 100
 
     def new_shoe():
         # Notifies player that a the shoe has been shuffled

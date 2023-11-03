@@ -17,7 +17,7 @@ def get_basic_strat(hand):
     cards = hand.get_cards()
     upcard = hand.get_upcard()
 
-    if len(cards) == 2 and cards[0] == cards[1]:
+    if hand.can_split():
         key = f"{cards[0]}s"
         if get_value(basic_strat_df, key, upcard) == 'Y':
             return 'split'

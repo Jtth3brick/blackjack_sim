@@ -78,10 +78,13 @@ class Game:
         """
         self.player = self.player_class(self)
         for _ in range(num_games):
-            shuffled = self.shoe.shuffle_if_cut()
-            if shuffled:
-                self.player.new_shoe()
-            self.play_round()
+            if self.player.play_more():
+                shuffled = self.shoe.shuffle_if_cut()
+                if shuffled:
+                    self.player.new_shoe()
+                self.play_round()
+            else:
+                return self.player_balance()
 
         return self.player_balance
 
