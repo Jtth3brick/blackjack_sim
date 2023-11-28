@@ -19,11 +19,11 @@ class Shoe:
         self.get_cut_card_position()
         self.cut_card_position = self.get_cut_card_position()
 
-    def get_cut_card_position(self):
+    def get_cut_card_position(self, min_thresh=0.25, max_thresh=0.50):
         """Determine the cut card position for shuffling."""
         # This is typically 1/4 to 1/2 from the back of the shoe
-        cut_position_min = int(len(self.cards) * 0.25)
-        cut_position_max = int(len(self.cards) * 0.50)
+        cut_position_min = int(len(self.cards) * min_thresh)
+        cut_position_max = int(len(self.cards) * max_thresh)
         return random.randint(cut_position_min, cut_position_max)
 
     def deal(self):
