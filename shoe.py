@@ -1,3 +1,4 @@
+from player import BasicPlayer
 import random
 
 class Shoe:
@@ -18,6 +19,7 @@ class Shoe:
         random.shuffle(self.cards)
         self.get_cut_card_position()
         self.cut_card_position = self.get_cut_card_position()
+        self.player.new_shoe()
 
     def get_cut_card_position(self, min_thresh=0.25, max_thresh=0.50):
         """Determine the cut card position for shuffling."""
@@ -26,15 +28,21 @@ class Shoe:
         cut_position_max = int(len(self.cards) * max_thresh)
         return random.randint(cut_position_min, cut_position_max)
 
-    def deal(self):
+    def deal(self, visible=True):
         """Deal one card from the shoe."""
         if len(self.cards) == 0:
             raise ValueError("The shoe is out of cards; it must be shuffled before dealing.")
-        return self.cards.pop(0)
+        card = self.cards.pop(0)
+        if visible:
+            self.player.update_count(card)
+        return card
 
     def shuffle_if_cut(self):
         """Determine if the cut card has been reached and shuffle if necessary."""
         if len(self.cards) <= self.cut_card_position:
             self.shuffle_shoe()
-            return True
-        return False
+    
+    def assign_player(self, player: BasicPlayer):
+        self.player = player
+    
+

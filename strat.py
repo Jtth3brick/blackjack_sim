@@ -25,9 +25,9 @@ def get_csv_path(count, running, true):
         return 'strat_csvs/basic_strat_running_positive.csv'
     elif true == 0 and running < 0:
         return 'strat_csvs/basic_strat_running_negative.csv'
-    elif true > 0 and true <= 6
+    elif true > 0 and true <= 6:
         return f"strat_csvs/basic_strat_true_{true}.csv"
-    elif true == -1 or true < 0
+    elif true == -1 or true < 0:
         return f"strat_csvs/basic_strat_true_negative_1.csv"
     elif true > 6:
         return 'strat_csvs/basic_strat_true_6.csv'

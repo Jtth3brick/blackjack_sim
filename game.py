@@ -17,8 +17,11 @@ class Game:
         """
 
         # initialize new dealer
+        upcard = self.shoe.deal()
+        dealer_downcard = self.shoe.deal(visible=False)
         dealer = self.dealer_class(self.shoe.deal(), self.shoe.deal())
         dealer_upcard = dealer.get_upcard()
+        assert dealer_upcard == upcard
 
         # start player new round and give hand + dealer upcard
         original_bet = self.player.new_round()
@@ -73,6 +76,9 @@ class Game:
                 self.update_money(2 * player_hand.get_bet_amount()) # player wins and gets double their bet
             elif not player_hand.is_bust() and hand_value == dealer_value:
                 self.update_money(player_hand.get_bet_amount()) # player breaks even
+        
+        # finally notify player what downcard was
+        self.player.update_count(dealer_downcard)
 
         return
     
@@ -81,12 +87,11 @@ class Game:
         Plays a sequence of Blackjack rounds until the game count reaches GAMES.
         """
         self.player = self.player_class(self)
+        self.shoe.assign_player(self.player)
         self.shoe.shuffle_shoe()
         for _ in range(num_games):
             if self.player.play_more():
-                shuffled = self.shoe.shuffle_if_cut()
-                if shuffled:
-                    self.player.new_shoe()
+                self.shoe.shuffle_if_cut()
                 self.play_round()
             else:
                 return self.player_balance()

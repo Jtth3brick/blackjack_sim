@@ -1,6 +1,8 @@
 from strat import strat
 from hand import Hand
 
+NUM_CARDS_IN_DECK = 52
+
 class BasicPlayer:
     """
     Represents a player playing basic strategy in a game of Blackjack.
@@ -39,7 +41,7 @@ class BasicPlayer:
                 hand.set_complete()
                 return 'stand'
             if not hand.is_complete():
-                decision = get_basic_strat(hand)
+                decision = strat(hand)
                 hand.set_decision(decision)
                 if decision == 'stand' or decision == 'surrender' or decision == 'double':
                     hand.set_complete()
@@ -59,14 +61,6 @@ class BasicPlayer:
         # Notifies player that a the shoe has been shuffled
         pass
 
-class BasicCounter(BasicPlayer):
-    """
-    Represents a player using a card counting system in addition to basic strategy in a game of Blackjack.
-    """
-    def __init__(self, gamestate):
-        super().__init__(gamestate)
-        self.count = 0  # Initialize the count
-
     def update_count(self, card):
         """
         Update the count based on the value of the card.
@@ -74,43 +68,61 @@ class BasicCounter(BasicPlayer):
         """
         pass
 
-    def calculate_deviation(self, hand):
-        """
-        Calculate if there is a deviation from basic strategy based on the current count.
-        This method should return the decision (hit, stand, double, etc.) based on the count.
-        """
-        pass
+class BasicCounter(BasicPlayer):
+    """
+    Represents a player using a card counting system in addition to basic strategy in a game of Blackjack.
+    """
+    def __init__(self, gamestate):
+        super().__init__(gamestate)
+        self.count = 0  # Initialize the count
+        self.num_cards_played = 0
+        self.dec_count = ['10', 'J', 'Q', 'K', 'A']
+        self.inc_count = ['2', '3', '4', '5', '6']
+        self.no_count_change = ['7', '8', '9']
+        self.num_decks = gamestate.shoe.num_decks
+        assert type(self.num_decks) == int
 
-    def is_deviation(self):
-        """
-        Determines if the current situation warrants a deviation from basic strategy.
-        This should return True if a deviation is needed, and False otherwise.
-        """
-        # Implement the logic to determine if a deviation is needed
-        # This will typically involve examining the count, the player's hand, and possibly the dealer's upcard
-        pass
 
     def play(self):
         """
         The main decision loop for the player's game actions, now incorporating card counting.
         Checks if a deviation from basic strategy is warranted.
         """
-        if not self.is_deviation():
-            super().play()
-        else:
-            # Implement the logic for playing hands when there is a deviation from basic strategy
-            # This may involve a different set of decisions based on the count and game situation
-            pass
-
-    def should_deviate(self):
-        """
-        Determine whether to deviate from basic strategy based on the current count.
-        This could be a simple threshold check or more complex logic.
-        """
-        pass
+        for hand in self.hands:
+            if hand.get_value() >= 21:
+                hand.set_complete()
+                return 'stand'
+            if not hand.is_complete():
+                decision = strat(hand, count=True, running=self.count, true=self.get_true_count())
+                hand.set_decision(decision)
+                if decision == 'stand' or decision == 'surrender' or decision == 'double':
+                    hand.set_complete()
 
     def new_shoe(self):
         self.count = 0
+        self.num_cards_played = 0
 
+    def update_count(self, card):
+        """
+        Update the count based on the value of the card.
+        This method needs to be implemented based on the counting system being used.
+        """
+
+        self.num_cards_played += 1
+
+        if card in self.inc_count:
+            self.count+=1
+        elif card in self.dec_count:
+            self.count-=1
+        else:
+            assert card in self.no_count_change
+
+    def get_true_count(self):
+        assert self.num_cards_played > 0
+        num_cards_left = NUM_CARDS_IN_DECK * self.num_decks - self.num_cards_played
+        assert num_cards_left > 0
+        return num_cards_left // NUM_CARDS_IN_DECK
+
+    
     # Other methods as needed, potentially for betting strategy adjustments
 
