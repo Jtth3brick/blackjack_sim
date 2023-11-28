@@ -5,6 +5,7 @@ class Hand:
         self.cards = list(cards)
         self.complete = False
         self.decision = None
+        self.is_loss = None
 
     def add_card(self, card):
         self.cards.append(card)
@@ -55,15 +56,21 @@ class Hand:
     def is_blackjack(self):
         return sorted([c if c != 'A' else '1' for c in self.cards]) == ['1', '10']
 
-    def set_complete(self):
+    def set_complete(self, force_loss=False):
         self.complete = True
+        if force_loss:
+            self.is_loss = True
 
     def is_complete(self):
-        return self.complete
+        return self.complete or self.is_loss == True
+    
+    def is_bust(self):
+        return self.get_value() > 21 or self.is_loss == True
 
     def check_bust(self):
-        if self.get_value() > 21:
+        if self.is_bust():
             self.set_complete()
+
 
     def set_decision(self, decision):
         # You would add the logic to check the decision here, possibly throwing an error if it's invalid
@@ -109,6 +116,7 @@ class Hand:
     
     def get_cards(self):
         return self.cards
+    
 
     def __repr__(self):
         return f"Hand({self.cards}, Bet: {self.bet}, Complete: {self.complete})"

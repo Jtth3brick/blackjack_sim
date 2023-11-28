@@ -4,11 +4,12 @@ class Game:
     """
     A sequence of Blackjack Rounds that keeps track of total money won or lost
     """
-    def __init__(self, dealer_class, player_class, shoe, player_start_balance = 1e4):
+    def __init__(self, dealer_class, player_class, shoe, player_start_balance = 1e4, blackjack_payout=1.5):
         self.shoe = shoe
         self.player_balance = player_start_balance
         self.player_class = player_class
         self.dealer_class = dealer_class
+        self.blackjack_payout = blackjack_payout
 
     def play_round(self):
         """
@@ -29,7 +30,7 @@ class Game:
 
         # check for auto payout
         if player_hands[0].is_blackjack() and not (dealer_upcard in ['10', 'J', 'Q', 'K', 'A']):
-            self.update_money(original_bet)
+            self.update_money(original_bet*(1 + self.blackjack_payout))
             return
         
         # loop until all player hands are in end case
@@ -43,9 +44,9 @@ class Game:
                     if decision == 'hit':
                         player_hand.add_card(self.shoe.deal())
                     elif decision == 'insure':
-                        self.update_money(hand_bet)
+                        self.update_money(-1 * hand_bet)
                         if dealer.is_blackjack():
-                            self.update_money(hand_bet)
+                            self.update_money(2 * hand_bet)
                             [player_hand.end_hand() for player_hand in player_hands]
                     elif decision == 'double':
                         self.update_money(-hand_bet)
@@ -61,14 +62,17 @@ class Game:
                         player_hands.append(new_player_hand)
                     elif decision == 'surrender':
                         self.update_money(original_bet / 2)
+                        player_hand.set_complete(force_loss=True)
             self.player.play()
         
         dealer.update_self(self.shoe)
         dealer_value = dealer.get_value()
         for player_hand in player_hands:
             hand_value = player_hand.get_value()
-            if not self.is_bust(hand_value) and hand_value > dealer_value:
-                self.update_money(player_hand.get_bet_amount())
+            if not player_hand.is_bust() and hand_value > dealer_value:
+                self.update_money(2 * player_hand.get_bet_amount()) # player wins and gets double their bet
+            elif not player_hand.is_bust() and hand_value == dealer_value:
+                self.update_money(player_hand.get_bet_amount()) # player breaks even
 
         return
     
