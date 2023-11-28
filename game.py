@@ -57,7 +57,7 @@ class Game:
                         card1 = player_hand.get_card(1)
                         player_hand.set_card(1, self.shoe.deal())
                         self.update_money(-original_bet)
-                        new_player_hand = Hand(player_hand.get_upcard(), card1, self.shoe.deal())
+                        new_player_hand = Hand(player_hand.get_upcard(), original_bet, card1, self.shoe.deal())
                         player_hands.append(new_player_hand)
                     elif decision == 'surrender':
                         self.update_money(original_bet / 2)
