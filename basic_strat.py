@@ -1,6 +1,6 @@
 import pandas as pd
 
-basic_strat_df = pd.read_csv('basic_strat.csv', index_col=0)
+basic_strat_df = pd.read_csv('strat_csvs/basic_strat_true_zero.csv', index_col=0)
 
 NAME_MAP = {
     'P': 'pass',
