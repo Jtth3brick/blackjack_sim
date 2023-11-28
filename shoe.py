@@ -4,18 +4,19 @@ class Shoe:
     def __init__(self, num_decks=6):
         self.num_decks = num_decks
         self.cards = self.initialize_shoe()
-        self.cut_card_position = self.get_cut_card_position()
         self.shuffle_shoe()
 
     def initialize_shoe(self):
         """Initialize multiple decks of cards into the shoe."""
         values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
         deck = values * 4  # One deck
-        return deck * self.num_decks  # Multiple decks
+        self.cards = deck * self.num_decks  # Multiple decks
 
     def shuffle_shoe(self):
         """Shuffle the decks in the shoe."""
+        self.initialize_shoe()
         random.shuffle(self.cards)
+        self.get_cut_card_position()
         self.cut_card_position = self.get_cut_card_position()
 
     def get_cut_card_position(self):
