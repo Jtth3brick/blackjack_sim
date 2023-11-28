@@ -4,8 +4,6 @@ import random
 class Shoe:
     def __init__(self, num_decks=6):
         self.num_decks = num_decks
-        self.cards = self.initialize_shoe()
-        self.shuffle_shoe()
 
     def initialize_shoe(self):
         """Initialize multiple decks of cards into the shoe."""

@@ -19,7 +19,7 @@ class Game:
         # initialize new dealer
         upcard = self.shoe.deal()
         dealer_downcard = self.shoe.deal(visible=False)
-        dealer = self.dealer_class(self.shoe.deal(), self.shoe.deal())
+        dealer = self.dealer_class(upcard, dealer_downcard)
         dealer_upcard = dealer.get_upcard()
         assert dealer_upcard == upcard
 

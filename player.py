@@ -37,9 +37,9 @@ class BasicPlayer:
         The main decision loop for the player's game actions.
         """
         for hand in self.hands:
-            if hand.get_value() >= 21:
+            if (not hand.is_complete()) and hand.get_value() >= 21:
                 hand.set_complete()
-                return 'stand'
+                hand.set_decision('stand')
             if not hand.is_complete():
                 decision = strat(hand)
                 hand.set_decision(decision)
@@ -121,8 +121,26 @@ class BasicCounter(BasicPlayer):
         assert self.num_cards_played > 0
         num_cards_left = NUM_CARDS_IN_DECK * self.num_decks - self.num_cards_played
         assert num_cards_left > 0
-        return num_cards_left // NUM_CARDS_IN_DECK
-
+        return (self.count * num_cards_left) // NUM_CARDS_IN_DECK
     
-    # Other methods as needed, potentially for betting strategy adjustments
+class StrategicCounter(BasicCounter):
+    """
+    Represents a player using a strategic card counting system in addition to basic strategy in a game of Blackjack.
+    """
 
+    def __init__(self, gamestate):
+        super().__init__(gamestate)
+        self.base_bet = 1  # The base bet amount
+        self.max_bet = 10  # The maximum bet amount
+
+    def get_bet(self):
+        """
+        Determines the bet amount based on the true count.
+        The betting strategy is to bet more when the count is favorable.
+        """
+        true_count = self.get_true_count()
+        if true_count <= 1:
+            return self.base_bet  # Minimum bet for unfavorable or neutral counts
+        else:
+            bet_amount = self.base_bet * (true_count - 1)  # Increase bet based on the true count
+            return min(bet_amount, self.max_bet)  # Ensure the bet does not exceed the maximum
