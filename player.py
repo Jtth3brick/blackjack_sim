@@ -1,4 +1,4 @@
-from basic_strat import get_basic_strat
+from strat import strat
 from hand import Hand
 
 class BasicPlayer:
