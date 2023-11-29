@@ -89,9 +89,9 @@ class BasicCounter(BasicPlayer):
         Checks if a deviation from basic strategy is warranted.
         """
         for hand in self.hands:
-            if hand.get_value() >= 21:
+            if (not hand.is_complete()) and hand.get_value() >= 21:
                 hand.set_complete()
-                return 'stand'
+                hand.set_decision('stand')
             if not hand.is_complete():
                 decision = strat(hand, count=True, running=self.count, true=self.get_true_count())
                 hand.set_decision(decision)
@@ -131,7 +131,8 @@ class StrategicCounter(BasicCounter):
     def __init__(self, gamestate):
         super().__init__(gamestate)
         self.base_bet = 1  # The base bet amount
-        self.max_bet = 10  # The maximum bet amount
+        self.max_bet = 100  # The maximum bet amount
+        self.risk_factor = 5
 
     def get_bet(self):
         """
@@ -142,5 +143,5 @@ class StrategicCounter(BasicCounter):
         if true_count <= 1:
             return self.base_bet  # Minimum bet for unfavorable or neutral counts
         else:
-            bet_amount = self.base_bet * (true_count - 1)  # Increase bet based on the true count
+            bet_amount = self.base_bet * self.risk_factor * (true_count - 1)  # Increase bet based on the true count
             return min(bet_amount, self.max_bet)  # Ensure the bet does not exceed the maximum

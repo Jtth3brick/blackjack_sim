@@ -94,7 +94,7 @@ class Game:
                 self.shoe.shuffle_if_cut()
                 self.play_round()
             else:
-                return self.player_balance()
+                return self.player_balance
 
         return self.player_balance
 
