@@ -79,7 +79,7 @@ class BasicCounter(BasicPlayer):
         self.dec_count = ['10', 'J', 'Q', 'K', 'A']
         self.inc_count = ['2', '3', '4', '5', '6']
         self.no_count_change = ['7', '8', '9']
-        self.num_decks = gamestate.shoe.num_decks
+        self.num_decks = gamestate.num_decks
         assert type(self.num_decks) == int
 
 
@@ -111,17 +111,37 @@ class BasicCounter(BasicPlayer):
         self.num_cards_played += 1
 
         if card in self.inc_count:
+            # print('got inc')
             self.count+=1
         elif card in self.dec_count:
+            # print('got dec')
             self.count-=1
         else:
             assert card in self.no_count_change
 
     def get_true_count(self):
-        assert self.num_cards_played > 0
+        if self.num_cards_played == 0:
+            return 0
         num_cards_left = NUM_CARDS_IN_DECK * self.num_decks - self.num_cards_played
-        assert num_cards_left > 0
-        return (self.count * num_cards_left) // NUM_CARDS_IN_DECK
+        assert num_cards_left > 0, "No cards left in the deck."
+
+        num_decks_left = num_cards_left / NUM_CARDS_IN_DECK
+        true_count = self.count / num_decks_left
+
+        # Round the true count towards zero
+        return int(true_count)
+    
+    def get_hands(self):
+        return self.hands
+    
+    def new_round(self):
+        """
+        Prepares the player for a new round.
+
+        :param player_balance: The current balance of the player
+        :return: The bet amount for the new round
+        """
+        return self.bet_amount
     
 class StrategicCounter(BasicCounter):
     """
@@ -132,7 +152,7 @@ class StrategicCounter(BasicCounter):
         super().__init__(gamestate)
         self.base_bet = 1  # The base bet amount
         self.max_bet = 100  # The maximum bet amount
-        self.risk_factor = 5
+        self.risk_factor = 10
 
     def get_bet(self):
         """
@@ -143,5 +163,14 @@ class StrategicCounter(BasicCounter):
         if true_count <= 1:
             return self.base_bet  # Minimum bet for unfavorable or neutral counts
         else:
-            bet_amount = self.base_bet * self.risk_factor * (true_count - 1)  # Increase bet based on the true count
+            bet_amount = self.base_bet * (true_count - 1)  # Increase bet based on the true count
             return min(bet_amount, self.max_bet)  # Ensure the bet does not exceed the maximum
+        
+    def new_round(self):
+        """
+        Prepares the player for a new round.
+
+        :param player_balance: The current balance of the player
+        :return: The bet amount for the new round
+        """
+        return self.get_bet()

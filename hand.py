@@ -54,7 +54,7 @@ class Hand:
         return soft_aces
 
     def is_blackjack(self):
-        return sorted([c if c != 'A' else '1' for c in self.cards]) == ['1', '10']
+        return len(self.cards) == 2 and 'A' in self.cards and (self.cards[0] in '10JQK' or self.cards[1] in '10JQK')
 
     def set_complete(self, force_loss=False):
         self.complete = True
@@ -96,7 +96,7 @@ class Hand:
     
     def get_upcard_val(self):
         upcard = self.get_upcard()
-        if upcard in ['J', 'Q', 'K']:
+        if upcard in ['10', 'J', 'Q', 'K']:
             return 10
         elif upcard != 'A':
             return int(upcard)
@@ -119,4 +119,4 @@ class Hand:
     
 
     def __repr__(self):
-        return f"Hand({self.cards}, Bet: {self.bet}, Complete: {self.complete})"
+        return f"Hand({self.cards}, Bet: {self.bet}, Decision: {self.decision}, Complete: {self.complete})"

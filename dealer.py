@@ -61,3 +61,5 @@ class Dealer:
         Returns the value of the dealer's hand.
         """
         return self.hand_value
+    def __repr__(self):
+        return f"Dealer(Hand: {self.cards}, Hand Value: {self.calculate_hand_value()})"

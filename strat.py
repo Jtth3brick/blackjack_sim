@@ -6,36 +6,48 @@ NAME_MAP = {
     'H': 'hit',
     'D': 'double',
     'Sr': 'surrender',
+    # 'Sr': 'stand',
+}
+
+DEVIATIONS = {
+    ('17', '8'): {'condition': lambda t, r: r >= 4, 'action': 'Sr'},
+    ('17', '9'): {'condition': lambda t, r: t <= -1, 'action': 'S'},
+    ('15', '9'): {'condition': lambda t, r: r >= 2, 'action': 'Sr'},
+    ('15', '10'): {'condition': lambda t, r: r <= 0, 'action': 'S'},
+    ('15', 'A'): {'condition': lambda t, r: r >= 2, 'action': 'Sr'},
+    ('A8', '4'): {'condition': lambda t, r: t >= 3, 'action': 'D'},
+    ('A8', '5'): {'condition': lambda t, r: t >= 1, 'action': 'D'},
+    ('A6', '2'): {'condition': lambda t, r: t >= 1, 'action': 'D'},
+    ('16', '9'): {'condition': lambda t, r: r >= 4, 'action': 'S'},
+    ('13', '2'): {'condition': lambda t, r: r <= -1, 'action': 'H'},
+    ('12', '2'): {'condition': lambda t, r: r >= 3, 'action': 'S'},
+    ('12', '3'): {'condition': lambda t, r: r >= 2, 'action': 'S'},
+    ('12', '4'): {'condition': lambda t, r: r <= 0, 'action': 'H'},
+    ('10', '10'): {'condition': lambda t, r: r >= 4, 'action': 'D'},
+    ('10', 'A'): {'condition': lambda t, r: r >= 4, 'action': 'D'},
+    ('9', '2'): {'condition': lambda t, r: t >= 1, 'action': 'D'},
+    ('9', '7'): {'condition': lambda t, r: t >= 3, 'action': 'D'},
+    ('8', '6'): {'condition': lambda t, r: t >= 2, 'action': 'D'}
 }
 
 def get_value(dataframe, row_label, column_label):
     return dataframe.loc[row_label, column_label]
+
+def check_deviation(key, upcard, running_count, true_count):
+    if (key, upcard) in DEVIATIONS:
+        deviation = DEVIATIONS[(key, upcard)]
+        condition_func = deviation['condition']
+        action = deviation['action']
+
+        # Evaluate the condition using the lambda function
+        if condition_func(true_count, running_count):
+            return action
+
+    return None
     
-
-def get_csv_path(count, running, true):
-
-    assert int(true) == true
-    assert int(running) == running
-
-    if running == 0 or not count:
-        assert true == 0
-
-        return 'strat_csvs/basic_strat.csv'
-    elif true == 0 and running > 0:
-        return 'strat_csvs/basic_strat_running_positive.csv'
-    elif true == 0 and running < 0:
-        return 'strat_csvs/basic_strat_running_negative.csv'
-    elif true > 0 and true <= 6:
-        return f"strat_csvs/basic_strat_true_{true}.csv"
-    elif true == -1 or true < 0:
-        return f"strat_csvs/basic_strat_true_negative_1.csv"
-    elif true > 6:
-        return 'strat_csvs/basic_strat_true_6.csv'
-    
-    raise ValueError(f"can't find csv path for\n\tcount={count}\n\trunning={running}\n\ttrue={true}")
 
 def strat(hand, count=False, running=0, true=0):
-    csv_path = get_csv_path(count, running, true)
+    csv_path = 'basic_strat.csv'
     dataframe = pd.read_csv(csv_path, index_col=0)
 
     cards = hand.get_cards()
@@ -56,5 +68,10 @@ def strat(hand, count=False, running=0, true=0):
     
     # If none of the above, use the hand's total value as the key
     key = str(hand.get_value())  # Make sure this matches the DataFrame's index
+
+    # Check for deviations before defaulting to basic strategy
+    deviation_action = check_deviation(key, upcard, running, true)
+    if deviation_action:
+        return NAME_MAP[deviation_action]
 
     return NAME_MAP[get_value(dataframe, key, upcard)]
